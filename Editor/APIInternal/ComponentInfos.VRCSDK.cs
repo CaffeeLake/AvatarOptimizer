@@ -515,6 +515,12 @@ namespace Anatawa12.AvatarOptimizer.APIInternal.VRCSDK
             ComponentDependencyCollector collector)
         {
             collector.AddDependency(component.rootTransform);
+#if AAO_VRCSDK3_AVATARS_PHYSBONE_GLOBAL_COLIDER
+            if (component.globalCollisionFlags != 0)
+            {
+                collector.MarkEntrypoint();
+            }
+#endif
         }
     }
 
