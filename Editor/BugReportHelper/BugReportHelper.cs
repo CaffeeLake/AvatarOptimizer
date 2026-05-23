@@ -8,9 +8,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Anatawa12.AvatarOptimizer.AnimatorParsersV2;
 using Anatawa12.AvatarOptimizer.Processors;
+using Anatawa12.AvatarOptimizer.Processors.TraceAndOptimizes;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.platform;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -1204,6 +1206,71 @@ internal class Context
         ReportFile.AddFile($"AvatarInfo.{position}.tree.txt", BugReportHelper.CollectAvatarInfo(root));
         ReportFile.AddFile($"MaterialInformation.{position}.tree.txt", 
             BugReportHelper.MaterialInformation(root.transform, materials));
+    }
+
+    public void AddTraceAndOptimizeStateReport(BuildContext context)
+    {
+        try
+        {
+            var state = context.GetState<TraceAndOptimizeState>();
+            var avatarRoot = context.AvatarRootObject;
+
+            string GetGoPath(GameObject? go) =>
+                go == null ? "<null>" : Utils.RelativePath(avatarRoot.transform, go.transform) ?? go.name;
+
+            string GetSmrPath(SkinnedMeshRenderer smr) =>
+                smr == null ? "<null>" : Utils.RelativePath(avatarRoot.transform, smr.transform) ?? smr.gameObject.name;
+
+            var settings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                ContractResolver = new ExcludeUnityObjectsContractResolver(),
+            };
+
+            var sb = new StringBuilder();
+            sb.AppendLine(JsonConvert.SerializeObject(state, settings));
+
+            // Path-based section for fields excluded from JSON (Unity object references)
+            sb.AppendLine("Exclusions:");
+            foreach (var path in state.Exclusions.Select(GetGoPath).OrderBy(s => s))
+                sb.AppendLine($"  {path}");
+
+            sb.AppendLine("PreserveBlendShapes:");
+            foreach (var kvp in state.PreserveBlendShapes.OrderBy(kvp => GetSmrPath(kvp.Key)))
+            {
+                sb.AppendLine($"  {GetSmrPath(kvp.Key)}:");
+                foreach (var shape in kvp.Value.OrderBy(s => s))
+                    sb.AppendLine($"    {shape}");
+            }
+
+            ReportFile.AddFile("TraceAndOptimizeState.AtTheBeginning.json", sb.ToString());
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+    }
+
+    private class ExcludeUnityObjectsContractResolver : DefaultContractResolver
+    {
+        protected override JsonProperty CreateProperty(System.Reflection.MemberInfo member, MemberSerialization memberSerialization)
+        {
+            var property = base.CreateProperty(member, memberSerialization);
+            if (ContainsUnityObject(property.PropertyType))
+                property.Ignored = true;
+            return property;
+        }
+
+        private static bool ContainsUnityObject(Type? type)
+        {
+            if (type == null) return false;
+            if (typeof(UnityEngine.Object).IsAssignableFrom(type)) return true;
+            if (type.IsArray)
+                return ContainsUnityObject(type.GetElementType());
+            if (type.IsGenericType)
+                return type.GetGenericArguments().Any(ContainsUnityObject);
+            return false;
+        }
     }
 }
 
