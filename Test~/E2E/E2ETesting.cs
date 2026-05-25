@@ -918,7 +918,7 @@ namespace Anatawa12.AvatarOptimizer.Test.E2E
         [Test]
         public void Issue1741_AutoMergeSkinnedMesh_SingleAnimator_Toggle()
         {
-            // SMR0 is not animated, SMR1 is animated by root animator,
+            // SMR0 is animated by root animator, SMR1 is not animated,
             // SMR2 is animated by other animator thus moved under the animator
             var avatar = TestUtils.NewAvatar();
             avatar.AddComponent<TraceAndOptimize>();
@@ -996,16 +996,16 @@ namespace Anatawa12.AvatarOptimizer.Test.E2E
             avatar.AddComponent<TraceAndOptimize>();
             var armature = Utils.NewGameObject("Armature", avatar.transform);
             var root = Utils.NewGameObject("Root", armature.transform);
-            NewRenderer("SMR0", 1, avatar);
+            NewRenderer("SMR0", 0, avatar);
             NewRenderer("SMR1", 1, avatar);
             var otherAnimator0Object = Utils.NewGameObject("OtherAnimator0", avatar.transform);
             var otherAnimator0 = otherAnimator0Object.AddComponent<Animator>();
             var otherAnimator1Object = Utils.NewGameObject("OtherAnimator1", avatar.transform);
             var otherAnimator1 = otherAnimator1Object.AddComponent<Animator>();
-            NewRenderer("SMR2", 1, otherAnimator0Object);
-            NewRenderer("SMR3", 1, otherAnimator0Object);
-            NewRenderer("SMR3", 1, otherAnimator1Object);
-            NewRenderer("SMR4", 1, otherAnimator1Object);
+            NewRenderer("SMR2", 2, otherAnimator0Object);
+            NewRenderer("SMR3", 3, otherAnimator0Object);
+            NewRenderer("SMR4", 4, otherAnimator1Object);
+            NewRenderer("SMR5", 5, otherAnimator1Object);
 
             TestUtils.SetFxLayer(avatar, 
             new AnimatorControllerBuilder("RootAnimator")
