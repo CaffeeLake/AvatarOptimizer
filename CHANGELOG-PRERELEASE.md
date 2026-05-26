@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog].
 
 ## [Unreleased]
 ### Added
+- PhysBone Global Colider Support added in VRCSDK 3.10.4 `#1740`
 
 ### Changed
 
