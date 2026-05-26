@@ -16,9 +16,12 @@ The format is based on [Keep a Changelog].
 ### Removed
 
 ### Fixed
-- Fix for Auto Merge SMR and non-root Animator has implementation bug and not fixed for few cases `#1744`
 
 ### Security
+
+## [1.9.14-beta.2] - 2026-05-26
+### Fixed
+- Fix for Auto Merge SMR and non-root Animator has implementation bug and not fixed for few cases [`#1744`](https://github.com/anatawa12/AvatarOptimizer/pull/1744)
 
 ## [1.9.14-beta.1] - 2026-05-25
 ### Added
@@ -2279,7 +2282,8 @@ This release is mistake.
 - Merge Bone
 - Clear Endpoint Position
 
-[Unreleased]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14-beta.1...HEAD
+[Unreleased]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14-beta.2...HEAD
+[1.9.14-beta.2]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14-beta.1...v1.9.14-beta.2
 [1.9.14-beta.1]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.13...v1.9.14-beta.1
 [1.9.13]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.13-beta.2...v1.9.13
 [1.9.13-beta.2]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.13-beta.1...v1.9.13-beta.2
