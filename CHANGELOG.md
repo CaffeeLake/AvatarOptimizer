@@ -8,9 +8,6 @@ The format is based on [Keep a Changelog].
 
 ## [Unreleased]
 ### Added
-- Bug Report Helper now includes `TraceAndOptimizeState` in the `AtTheBeginning` phase as a pretty-printed JSON file [`#1737`](https://github.com/anatawa12/AvatarOptimizer/pull/1737)
-  - This allows inspecting the actual Trace and Optimize configuration after other tools may have modified it silently
-- PhysBone Global Colider Support added in VRCSDK 3.10.4 `#1740`
 
 ### Changed
 
@@ -19,11 +16,19 @@ The format is based on [Keep a Changelog].
 ### Removed
 
 ### Fixed
-- Avatar Optimizer incorrectly downconverts float32 color to unorm8 color `#1739`
-  - AAO now preserves float32 color as is
-- Auto Merge SMR may break animation driven by non-root Animator components `#1742`
 
 ### Security
+
+## [1.9.14] - 2026-05-26
+### Added
+- Bug Report Helper now includes `TraceAndOptimizeState` in the `AtTheBeginning` phase as a pretty-printed JSON file [`#1737`](https://github.com/anatawa12/AvatarOptimizer/pull/1737)
+  - This allows inspecting the actual Trace and Optimize configuration after other tools may have modified it silently
+- PhysBone Global Colider Support added in VRCSDK 3.10.4 [`#1740`](https://github.com/anatawa12/AvatarOptimizer/pull/1740)
+
+### Fixed
+- Avatar Optimizer incorrectly downconverts float32 color to unorm8 color [`#1739`](https://github.com/anatawa12/AvatarOptimizer/pull/1739)
+  - AAO now preserves float32 color as is
+- Auto Merge SMR may break animation driven by non-root Animator components [`#1742`](https://github.com/anatawa12/AvatarOptimizer/pull/1742)
 
 ## [1.9.13] - 2026-05-13
 ### Fixed
@@ -1483,7 +1488,8 @@ The format is based on [Keep a Changelog].
 - Merge Bone
 - Clear Endpoint Position
 
-[Unreleased]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.13...HEAD
+[Unreleased]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14...HEAD
+[1.9.14]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.13...v1.9.14
 [1.9.13]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.12...v1.9.13
 [1.9.12]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.11...v1.9.12
 [1.9.11]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.10...v1.9.11

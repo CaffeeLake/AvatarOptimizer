@@ -8,7 +8,6 @@ The format is based on [Keep a Changelog].
 
 ## [Unreleased]
 ### Added
-- PhysBone Global Colider Support added in VRCSDK 3.10.4 `#1740`
 
 ### Changed
 
@@ -19,6 +18,10 @@ The format is based on [Keep a Changelog].
 ### Fixed
 
 ### Security
+
+## [1.9.14] - 2026-05-26
+### Added
+- PhysBone Global Colider Support added in VRCSDK 3.10.4 [`#1740`](https://github.com/anatawa12/AvatarOptimizer/pull/1740)
 
 ## [1.9.14-beta.2] - 2026-05-26
 ### Fixed
@@ -2283,7 +2286,8 @@ This release is mistake.
 - Merge Bone
 - Clear Endpoint Position
 
-[Unreleased]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14-beta.2...HEAD
+[Unreleased]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14...HEAD
+[1.9.14]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14-beta.2...v1.9.14
 [1.9.14-beta.2]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14-beta.1...v1.9.14-beta.2
 [1.9.14-beta.1]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.13...v1.9.14-beta.1
 [1.9.13]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.13-beta.2...v1.9.13
