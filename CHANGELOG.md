@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog].
 ### Fixed
 - Avatar Optimizer incorrectly downconverts float32 color to unorm8 color `#1739`
   - AAO now preserves float32 color as is
+- Auto Merge SMR may break animation driven by non-root Animator components `#1742`
 
 ### Security
 
