@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Anatawa12.AvatarOptimizer.Processors.SkinnedMeshes;
@@ -242,12 +243,15 @@ namespace Anatawa12.AvatarOptimizer.Processors
             Profiler.BeginSample("Optimize Bindpose Phase 2");
             // Optimization2: If there are same (BindPose, Transform) pair, merge
             // This is optimization for RestPose bone merging
+            var boneGrouping = new BoneInfoMap<List<Bone>>();
+            foreach (var bone in meshInfo2.Bones)
+                boneGrouping.TryAdd(bone, new List<Bone>())?.Add(bone);
             var boneMapping = new Dictionary<Bone, Bone>();
-            foreach (var grouping in meshInfo2.Bones.GroupBy(x => new BoneUniqKey(x)))
+            foreach (var group in boneGrouping.Values)
             {
-                if (grouping.Key.Transform == null) continue;
-                primaryBones.TryGetValue(grouping.Key.Transform, out var primaryBone);
-                var group = grouping.ToArray();
+                var transform = group[0].Transform;
+                if (transform == null) continue;
+                primaryBones.TryGetValue(transform, out var primaryBone);
                 if (group.All(x => x != primaryBone))
                     primaryBone = group[0];
                 foreach (var bone in group)
@@ -316,39 +320,108 @@ namespace Anatawa12.AvatarOptimizer.Processors
             return true;
         }
 
-        private readonly struct BoneUniqKey : IEquatable<BoneUniqKey>
+        private class BoneInfoMap<V>
         {
-            private readonly Matrix4x4 _bindPoseInfo;
-            public readonly Transform? Transform;
+            private const float epsilon = 1f / (1 << 15);
+            private const float translateScale = 1f / (1 << 2);
 
-            public BoneUniqKey(Bone bone)
+            private Dictionary<Transform, List<Entry>> _byBoneTransform = new();
+            public IEnumerable<V> Values => _byBoneTransform.SelectMany(x => x.Value).Select(x => x.Value);
+
+            private (List<Entry>? list, int index) FindEntry(Transform? transform, Matrix4x4 mat)
             {
-                _bindPoseInfo = bone.Bindpose * 100000;
-                _bindPoseInfo.m00 = Mathf.Round(_bindPoseInfo.m00);
-                _bindPoseInfo.m01 = Mathf.Round(_bindPoseInfo.m01);
-                _bindPoseInfo.m02 = Mathf.Round(_bindPoseInfo.m02);
-                _bindPoseInfo.m03 = Mathf.Round(_bindPoseInfo.m03);
-                _bindPoseInfo.m10 = Mathf.Round(_bindPoseInfo.m10);
-                _bindPoseInfo.m11 = Mathf.Round(_bindPoseInfo.m11);
-                _bindPoseInfo.m12 = Mathf.Round(_bindPoseInfo.m12);
-                _bindPoseInfo.m13 = Mathf.Round(_bindPoseInfo.m13);
-                _bindPoseInfo.m20 = Mathf.Round(_bindPoseInfo.m20);
-                _bindPoseInfo.m21 = Mathf.Round(_bindPoseInfo.m21);
-                _bindPoseInfo.m22 = Mathf.Round(_bindPoseInfo.m22);
-                _bindPoseInfo.m23 = Mathf.Round(_bindPoseInfo.m23);
-                _bindPoseInfo.m30 = Mathf.Round(_bindPoseInfo.m30);
-                _bindPoseInfo.m31 = Mathf.Round(_bindPoseInfo.m31);
-                _bindPoseInfo.m32 = Mathf.Round(_bindPoseInfo.m32);
-                Transform = bone.Transform;
+                if (!ValidBone(transform, mat)) return default;
+                if (!_byBoneTransform.TryGetValue(transform, out var list)) return (null, -1);
+
+                var minIndex = -1;
+                var minDistance = float.MaxValue;
+                for (var i = 0; i < list.Count; i++)
+                {
+                    var key = list[i].Key;
+
+                    var dist = Mathf.Max(
+                        // rotation scale shear 3x3
+                        Mathf.Abs(key.m00 - mat.m00),
+                        Mathf.Abs(key.m01 - mat.m01),
+                        Mathf.Abs(key.m02 - mat.m02),
+                        Mathf.Abs(key.m10 - mat.m10),
+                        Mathf.Abs(key.m11 - mat.m11),
+                        Mathf.Abs(key.m12 - mat.m12),
+                        Mathf.Abs(key.m20 - mat.m20),
+                        Mathf.Abs(key.m21 - mat.m21),
+                        Mathf.Abs(key.m22 - mat.m22),
+                        // translate
+                        Mathf.Abs(key.m03 - mat.m03) * translateScale,
+                        Mathf.Abs(key.m13 - mat.m13) * translateScale,
+                        Mathf.Abs(key.m23 - mat.m23) * translateScale
+                    );
+
+                    if (dist < minDistance)
+                    {
+                        minDistance = dist;
+                        minIndex = i;
+                    }
+                }
+
+                if (minDistance > epsilon) return (list, -1);
+                return (list, minIndex);
             }
 
-            public bool Equals(BoneUniqKey other) =>
-                Equals(Transform, other.Transform) && _bindPoseInfo == other._bindPoseInfo;
+            private bool ValidBone([NotNullWhen(true)] Transform? transform, Matrix4x4 mat)
+            {
+                if (transform == null) return false;
+                if (mat.m30 != 0) return false;
+                if (mat.m31 != 0) return false;
+                if (mat.m32 != 0) return false;
+                // ReSharper disable once CompareOfFloatsByEqualityOperator bindpose matrix is very stable
+                if (mat.m33 != 1) return false;
+                return true;
+            }
 
-            public override bool Equals(object? obj) => obj is BoneUniqKey other && Equals(other);
-            public override int GetHashCode() => HashCode.Combine(_bindPoseInfo, Transform);
+            public V? TryAdd(Bone bone, V value)
+            {
+                if (!ValidBone(bone.Transform, bone.Bindpose)) return default;
+                var entry = FindEntry(bone.Transform, bone.Bindpose);
+                if (entry.index < 0)
+                {
+                    if (entry.list == null) 
+                        _byBoneTransform.Add(bone.Transform, entry.list = new());
+
+                    entry.list.Add(new()
+                    {
+                        Key = bone.Bindpose,
+                        Value = value,
+                    });
+                    return value;
+                }
+                else
+                {
+                    // Entry already added
+                    return entry.list![entry.index].Value;
+                }
+            }
+
+            public bool TryGetValue(Bone bone, [NotNullWhen(true)] out V? o)
+            {
+                var entry = FindEntry(bone.Transform, bone.Bindpose);
+                if (entry.list == null || entry.index < 0)
+                {
+                    o = default;
+                    return false;
+                }
+                else
+                {
+                    o = entry.list[entry.index].Value!;
+                    return true;
+                }
+            }
+
+            private struct Entry
+            {
+                public Matrix4x4 Key;
+                public V Value;
+            }
         }
-
 
         public struct MergeBoneTransParentInfo
         {
