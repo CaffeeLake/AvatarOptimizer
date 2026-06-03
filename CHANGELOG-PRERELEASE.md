@@ -16,10 +16,13 @@ The format is based on [Keep a Changelog].
 ### Removed
 
 ### Fixed
-- Merge Bone may introduce z-fighting `#1748`
-  - This fixes compatibility problem with see through hair
 
 ### Security
+
+## [1.9.15-beta.1] - 2026-06-03
+### Fixed
+- Merge Bone may introduce z-fighting [`#1748`](https://github.com/anatawa12/AvatarOptimizer/pull/1748)
+  - This fixes compatibility problem with see through hair
 
 ## [1.9.14] - 2026-05-26
 ### Added
@@ -2288,7 +2291,8 @@ This release is mistake.
 - Merge Bone
 - Clear Endpoint Position
 
-[Unreleased]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14...HEAD
+[Unreleased]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.15-beta.1...HEAD
+[1.9.15-beta.1]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14...v1.9.15-beta.1
 [1.9.14]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14-beta.2...v1.9.14
 [1.9.14-beta.2]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.14-beta.1...v1.9.14-beta.2
 [1.9.14-beta.1]: https://github.com/anatawa12/AvatarOptimizer/compare/v1.9.13...v1.9.14-beta.1
